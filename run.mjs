@@ -3,10 +3,12 @@ import os from 'os'; import fs from 'fs'; import http from 'http';
 import https from 'https'; import {spawn} from 'child_process';
 import {dirname} from 'path'; import {fileURLToPath} from 'url';
 import conf from '../load.js';
-const VER="v4.0";
+const VER="v4.1";
 
-let ind,dir=dirname(fileURLToPath(import.meta.url));
+let ind,dir=dirname(dirname(fileURLToPath(import.meta.url)));
 const info={ips:getIPList(),dir:dir}, opt=conf.opts, msg=console.log;
+if(opt.autoInstOptional==null) opt.autoInstOptional=true;
+if(!opt.npm || !opt.npm.length) opt.npm=[''];
 if(verifyDepends()) conf.main(info); else runJSLoader();
 
 function verifyDepends() {
@@ -14,12 +16,12 @@ function verifyDepends() {
 	if(!(Number(v.substr(1,v.indexOf('.')-1)) >= opt.minVer))
 		err(`Nodejs ${v} too old, requires >= v${opt.minVer}!`);
 	if(process.argv.length==3 && process.argv[2]=='.reload') {opt.deleteDir=1;return 0}
-	let p=1; for(let n=0,l=opt.npmInstNames.length,ns,name; n<l; ++n) {
-		ns=opt.npmInstNames[n].split(" as "), name=ns[0]; if(ns.length > 1) name=ns[1];
+	let p=1; for(let n=0,l=opt.npm.length,ns,name; n<l; ++n) {
+		ns=opt.npm[n].split(" as "), name=ns[0]; if(ns.length > 1) name=ns[1];
 		if(!fs.existsSync(dir+'/node_modules/'+name)) {p=0;break}
 	}
-	if(!opt.wgetPath.endsWith('/')) opt.wgetPath+='/';
-	for(let n=0,l=opt.wgetFiles.length,fn; n<l; ++n) {
+	if(opt.wgetPath && !opt.wgetPath.endsWith('/')) opt.wgetPath+='/';
+	if(opt.wgetFiles) for(let n=0,l=opt.wgetFiles.length,fn; n<l; ++n) {
 		fn=opt.wgetFiles[n]; fn=fn.substr(fn.lastIndexOf('/')+1);
 		if(!fs.existsSync(dir+opt.wgetPath+fn)) {p=0;break}
 	}
@@ -32,7 +34,7 @@ function runJSLoader() {
 	info.cpus+(opt.debug?"Debug Mode Enabled.":''));
 	msg("\x1b[33mDependencies Missing!\x1b[0m\n"),checkNet(e => {
 		if(e) err("No Internet Connection!\n"+e);
-		if(opt.wgetFiles.length) {
+		if(opt.wgetFiles && opt.wgetFiles.length) {
 			msg("Fetching Resources..."); mkDir(dir+opt.wgetPath,1);
 			ind=0; get(opt.wgetFiles[ind]);
 		} else doInstall();
@@ -53,30 +55,27 @@ function httpRes(rs) {
 
 function doInstall() {
 	if(opt.deleteDir) msg("Deleting Install Directory..."),remDir(dir+"/node_modules");
-	msg("Installing Node.js Modules...");
-	if(opt.autoInstOptional) Array.prototype.push.apply(opt.npmInstNames, opt.optionalInst);
-	ind=0; installRun();
+	if(opt.autoInstOptional && opt.optNpm) Array.prototype.push.apply(opt.npm,opt.optNpm);
+	msg("Installing Modules..."),ind=0,installRun();
 }
 function installRun() {
-	if(ind == opt.npmInstNames.length) remDir(dir+'/package-lock.json'),
+	if(ind == opt.npm.length) remDir(dir+'/package-lock.json'),
 		msg("\x1b[32mInstall Complete!\x1b[0m"),process.exit();
-	let ns=opt.npmInstNames[ind].split(" as "),mod=ns[0],inst=mod; if(ns.length > 1) mod=ns[1];
+	let ns=opt.npm[ind].split(" as "),mod=ns[0],inst=mod; if(ns.length > 1) mod=ns[1];
 	++ind; if(opt.deleteDir || !fs.existsSync(dir+'/node_modules/'+mod)) {
 		msg("Installing",mod);
 		let cmd=spawn('npm', ['i',inst], {cwd:dir, windowsHide:true, shell:true, stdio:'inherit'});
-		cmd.on('error', e => {if(e) console.error(e); cmd.removeAllListeners()});
-		cmd.on('close', c => {if(!c) msg(mod,"Installed."),installRun()});
+		cmd.on('error', e => console.error(e));
+		cmd.on('close', c => c?err("Install failed!"):installRun());
 	} else msg("Skipping",mod),installRun();
 }
 
-function mkDir(path, noDel) {
-	if(fs.existsSync(path)) {
-		if(noDel && fs.lstatSync(path).isDirectory()) return; remDir(path);
-	}
-	fs.mkdirSync(path);
+function mkDir(p,noDel) {
+	if(fs.existsSync(p)) {if(noDel && fs.lstatSync(p).isDirectory()) return; remDir(p)}
+	fs.mkdirSync(p);
 }
 function remDir(p,c) {
-	if(!c) { if(p.endsWith('/')) p=p.substr(0,p.length-1); if(!fs.existsSync(p)) return; }
+	if(!c) {if(p.endsWith('/')) p=p.substr(0,p.length-1); if(!fs.existsSync(p)) return}
 	if(!fs.lstatSync(p).isDirectory()) return fs.unlinkSync(p);
 	let d=fs.readdirSync(p); for(let s in d) remDir(p+'/'+d[s],1); fs.rmdirSync(p);
 }
@@ -87,7 +86,7 @@ function getIPList() {
 	const ip=[], fl=os.networkInterfaces();
 	for(let k in fl) fl[k].forEach(f => {if(!f.internal && f.family=='IPv4'
 	&& f.mac!='00:00:00:00:00:00' && f.address) ip.push(f.address)});
-	return ip.length?ip:0;
+	return ip;
 }
 function getOS() {
 	switch(os.platform()) {
