@@ -3,11 +3,11 @@ if($host.version.major -ge 6) {$e="`e[31m";$r="`e[0m"} else {$e=$r=""}
 
 #Handle symlink path
 function getLink($fn) {
-	$t=$fn; do {
+	$do=$PWD; $t=$fn; do {
 		cd (Split-Path -Parent $fn); cd (Split-Path -Parent $t)
 		$fn=(Split-Path -Leaf $t)
 	} while($t=(Get-Item $fn).Target)
-	return (Join-Path $PWD $fn)
+	$fn=Join-Path $PWD $fn; cd $do; $fn
 }
 function ex() {exit}
 if(!($SCR=$PSCommandPath)) {
@@ -16,7 +16,7 @@ if(!($SCR=$PSCommandPath)) {
 }
 $SCR=Split-Path -Parent (getLink($SCR)); $DIR=Split-Path -Parent $SCR
 $minVer=(Select-String "minVer.+?(\d+)" "$DIR/load.js").Matches.Groups[1].Value
-$gyp=(Select-String "gyp.+?(\w+)" "$DIR/load.js").Matches.Groups[1].Value
+$gyp=Select-String "gyp.+?(\w+)" "$DIR/load.js"; if($gyp) {$gyp=Matches.Groups[1].Value}
 function getVer {((node -v) | Select-String "\d+").Matches.Value}
 
 #Check version
