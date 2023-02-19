@@ -20,7 +20,7 @@ This loader preforms the following:
 
 ## Adding to your project
 
-To add AutoLoader to your project, cd to it and run `git subtree -P AutoLoader add https://github.com/Pecacheu/AutoLoader main --squash`
+To add AutoLoader to your project, cd to it and run `git submodule add https://github.com/Pecacheu/AutoLoader`. To update AutoLoader, run `git submodule update`
 
 Then, on Linux run `ln -s AutoLoader/run.sh run.sh; ln -s AutoLoader/run.exe run.exe`\
 Or on Windows (as Admin) run `mklink run.sh AutoLoader\run.sh & mklink run.exe AutoLoader\run.exe`
