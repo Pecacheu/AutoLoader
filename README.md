@@ -40,6 +40,15 @@ The configuration is stored in `../load.js`. Included is an example config with 
 
 Command line arguments are passed to your script with `process.argv` as normal. However, if the script is called with the argument `.reload`, all dependencies will be deleted and reloaded! The slightly odd name was chosen to avoid conflicts.
 
+## Examples
+
+Here are some real projects that implement AutoLoader:
+
+- [ChuMinify](https://github.com/Pecacheu/Minifier)
+- [Math Solver](https://github.com/Pecacheu/Solver)
+
+## OS Support
+
 ### Windows and Linux (Ubuntu, Raspbian, Debian, Arch, Android Termux, etc.) supported!
 
 MacOS support coming eventually, when I get around to it. (Tho honestly as a former user, screw the modern post-Steve(s) Apple and their anti-Open Source, Consumer Data-selling walled garden. Yeesh, at least 2020s Microsoft *pretends* to care about GNU.)
