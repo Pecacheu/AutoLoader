@@ -9,7 +9,7 @@ function getLink($fn) {
 	} while($t=(Get-Item $fn).Target)
 	$fn=Join-Path $PWD $fn; cd $do; $fn
 }
-function ex() {exit}
+function ex() {exit 1}
 if(!($SCR=$PSCommandPath)) {
 	$SCR=[Environment]::GetCommandLineArgs()[0];
 	function ex() {pause; exit}
@@ -40,7 +40,7 @@ function getAppx($pkg) {
 #Install Node
 if($inst) {
 	winget install -e OpenJS.NodeJS
-	if((getVer) -lt $minVer) {"${e}New version v$node is too old!?$r"; ex}
+	"Install complete! Please relaunch."; ex
 }
 if(($gyp -eq "true") -and !(Test-Path "$DIR/node_modules/gyp_test")) {
 	if(!(Get-Package "Visual Studio Build Tools 2022")) {

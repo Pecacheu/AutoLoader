@@ -3,18 +3,18 @@ import os from 'os'; import fs from 'fs'; import http from 'http';
 import https from 'https'; import {spawn} from 'child_process';
 import {dirname} from 'path'; import {fileURLToPath} from 'url';
 import {C,msg,err} from './color.mjs'; import conf from '../load.js';
-const VER="v4.1.1";
+const VER="v4.1.2";
 
 let ind,dir=dirname(dirname(fileURLToPath(import.meta.url)));
 const info={ips:getIPList(),dir:dir}, opt=conf.opts;
 if(opt.autoInstOptional==null) opt.autoInstOptional=true;
-if(!opt.npm || !opt.npm.length) opt.npm=[''];
 if(verifyDepends()) conf.main(info); else runJSLoader();
 
 function verifyDepends() {
 	getOS(); let v=process.version;
 	if(!(Number(v.substr(1,v.indexOf('.')-1)) >= opt.minVer))
 		err(`Nodejs ${v} too old, requires >= v${opt.minVer}!`,1);
+	if(!opt.npm || !opt.npm.length) opt.npm=fs.existsSync(dir+'/package.json')?['']:[];
 	if(process.argv.length==3 && process.argv[2]=='.reload') {opt.deleteDir=1;return 0}
 	let p=1; for(let n=0,l=opt.npm.length,ns,name; n<l; ++n) {
 		ns=opt.npm[n].split(" as "), name=ns[0]; if(ns.length > 1) name=ns[1];
