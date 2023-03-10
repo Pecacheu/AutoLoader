@@ -19,16 +19,18 @@ else inst=1; fi
 #Install Node
 if [ $inst ]; then
 	set -e
-	if type apt; then sudo apt install nodejs -y
-	elif type pkg; then pkg install nodejs
+	if type pkg; then pkg install nodejs -y
+	elif type apt; then sudo apt install nodejs -y
 	elif type pacman; then pacman -S install nodejs
 	else echo -e "${e}Sorry, your package manager is not supported.$r"; exit 1; fi
-	npm i -g n; sudo n latest; sudo n prune
-	"Install complete! Please relaunch."; exit 1
+	if type sudo &>/dev/null; then
+		npm i -g n; sudo n latest; sudo n prune
+	fi
+	echo -e "${e}Install complete! Please relaunch.$r"; exit 1
 fi
 if [[ $gyp == "true" && ! -f "$DIR/node_modules/gyp_test" ]]; then
 	echo "Installing node-gyp..."
-	sudo npm i -g node-gyp
+	type sudo &>/dev/null && sudo npm i -g node-gyp || npm i -g node-gyp
 	[ $? -ne 0 ] && echo -e "${e}Install failed!$r" && exit 1
 	mkdir -p "$DIR/node_modules"; touch "$DIR/node_modules/gyp_test"
 fi

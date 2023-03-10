@@ -40,7 +40,7 @@ function getAppx($pkg) {
 #Install Node
 if($inst) {
 	winget install -e OpenJS.NodeJS
-	"Install complete! Please relaunch."; ex
+	"${e}Install complete! Please relaunch.$r"; ex
 }
 if(($gyp -eq "true") -and !(Test-Path "$DIR/node_modules/gyp_test")) {
 	if(!(Get-Package "Visual Studio Build Tools 2022")) {

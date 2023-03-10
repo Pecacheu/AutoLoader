@@ -3,7 +3,7 @@ import os from 'os'; import fs from 'fs'; import http from 'http';
 import https from 'https'; import {spawn} from 'child_process';
 import {dirname} from 'path'; import {fileURLToPath} from 'url';
 import {C,msg,err} from './color.mjs'; import conf from '../load.js';
-const VER="v4.1.2";
+const VER="v4.1.3";
 
 let ind,dir=dirname(dirname(fileURLToPath(import.meta.url)));
 const info={ips:getIPList(),dir:dir}, opt=conf.opts;
@@ -15,10 +15,10 @@ function verifyDepends() {
 	if(!(Number(v.substr(1,v.indexOf('.')-1)) >= opt.minVer))
 		err(`Nodejs ${v} too old, requires >= v${opt.minVer}!`,1);
 	if(!opt.npm || !opt.npm.length) opt.npm=fs.existsSync(dir+'/package.json')?['']:[];
-	if(process.argv.length==3 && process.argv[2]=='.reload') {opt.deleteDir=1;return 0}
-	let p=1; for(let n=0,l=opt.npm.length,ns,name; n<l; ++n) {
-		ns=opt.npm[n].split(" as "), name=ns[0]; if(ns.length > 1) name=ns[1];
-		if(!fs.existsSync(dir+'/node_modules/'+name)) {p=0;break}
+	if(process.argv.length==3 && process.argv[2]=='.reload') return opt.deleteDir=1,0;
+	let p=1; for(let n=0,l=opt.npm.length,ns; n<l; ++n) {
+		if(!(ns=opt.npm[n])) continue; ns=ns.split(" as ");
+		if(!fs.existsSync(dir+'/node_modules/'+ns[ns.length>1?1:0])) {p=0;break}
 	}
 	if(opt.wgetPath && !opt.wgetPath.endsWith('/')) opt.wgetPath+='/';
 	if(opt.wgetFiles) for(let n=0,l=opt.wgetFiles.length,fn; n<l; ++n) {
@@ -95,11 +95,12 @@ function getOS() {
 		default: info.os=os.platform();
 	}
 	switch(os.arch()) {
-		case 'ia32': info.arch="32-bit"; break;
-		case 'x64': info.arch="64-bit"; break;
-		case 'arm': info.arch="ARM"; break;
+		case 'ia32': info.arch="x86 32-bit"; break;
+		case 'x64': info.arch="x86 64-bit"; break;
+		case 'arm': info.arch="ARM 32-bit"; break;
+		case 'arm64': info.arch="ARM 64-bit"; break;
 		default: info.arch=os.arch();
 	}
-	let c=os.cpus(); info.cpu=c[0].model;
-	info.cpus=c.length;
+	let c=os.cpus(); info.cpu=c[0]?c[0].model:"Unknown CPU";
+	info.cpus=os.availableParallelism();
 }

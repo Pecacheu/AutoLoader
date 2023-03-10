@@ -34,7 +34,7 @@ The configuration is stored in `../load.js`. Included is an example config with 
 - `ips` An Array of all external IPs on this system.
 - `dir` Absolute path to your project's root directory.
 - `os` OS, ex. `Windows`, `Linux`, or `MacOS`
-- `arch` CPU Arch, ex. `32-bit`, `64-bit`, or `ARM`
+- `arch` CPU Arch, ex. `x86 32-bit`, `ARM 64-bit`, etc.
 - `cpu` CPU name, ex. `Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz`
 - `cpus` CPU thread count.
 
