@@ -16,7 +16,7 @@ if(!($SCR=$PSCommandPath)) {
 }
 $SCR=Split-Path -Parent (getLink($SCR)); $DIR=Split-Path -Parent $SCR
 $minVer=(Select-String "minVer.+?(\d+)" "$DIR/load.js").Matches.Groups[1].Value
-$gyp=Select-String "gyp.+?(\w+)" "$DIR/load.js"; if($gyp) {$gyp=Matches.Groups[1].Value}
+$gyp=Select-String "gyp.+?(\w+)" "$DIR/load.js"; if($gyp) {$gyp=$gyp.Matches.Groups[1].Value}
 function getVer {((node -v) | Select-String "\d+").Matches.Value}
 
 #Check version
