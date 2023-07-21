@@ -26,7 +26,7 @@ if [ $inst ]; then
 	if type sudo &>/dev/null; then
 		npm i -g n; sudo n latest; sudo n prune
 	fi
-	echo -e "${e}Install complete! Please relaunch.$r"; exit 1
+	echo -e "${e}Install complete! Please reboot.$r"; exit 1
 fi
 if [[ $gyp == "true" && ! -f "$DIR/node_modules/gyp_test" ]]; then
 	echo "Installing node-gyp..."

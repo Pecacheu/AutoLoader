@@ -3,7 +3,7 @@ import os from 'os'; import fs from 'fs'; import http from 'http';
 import https from 'https'; import {spawn} from 'child_process';
 import {dirname} from 'path'; import {fileURLToPath} from 'url';
 import {C,msg,err} from './color.mjs'; import conf from '../load.js';
-const VER="v4.1.5";
+const VER="v4.1.6";
 
 let ind,dir=dirname(dirname(fileURLToPath(import.meta.url)));
 const info={ips:getIPList(),dir:dir}, opt=conf.opts;
